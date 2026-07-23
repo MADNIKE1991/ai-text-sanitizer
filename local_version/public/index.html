@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru" class="bg-slate-900 text-slate-100">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AI Text Sanitizer | MADNIKE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-slate-800 p-8 rounded-2xl shadow-2xl border border-cyan-500/30">
+        <h1 class="text-3xl font-bold mb-6 text-cyan-400 flex items-center gap-2">
+            <span class="p-2 bg-cyan-500/10 rounded-lg">⚡</span> AI Text Sanitizer
+        </h1>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">Вставь текст от ИИ сюда:</label>
+                <textarea id="rawText"
+                    class="w-full h-40 bg-slate-900 border border-slate-700 rounded-xl p-4 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
+                    placeholder="Вставь текст, и магия произойдет автоматически..."></textarea>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-slate-400 mb-2">Чистый результат (можно
+                    редактировать):</label>
+                <textarea id="resultText"
+                    class="w-full h-48 bg-slate-950 border border-emerald-500/50 rounded-xl p-4 text-emerald-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all resize-y"
+                    placeholder="Здесь появится очищенный текст..."></textarea>
+
+                <div class="flex justify-end mt-3">
+                    <button id="copyBtn"
+                        class="hidden px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-emerald-900/20 active:scale-95">
+                        КОПИРОВАТЬ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawInput = document.getElementById('rawText');
+        const resultOutput = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+
+        rawInput.addEventListener('input', async () => {
+            const text = rawInput.value;
+
+            if (!text.trim()) {
+                resultOutput.value = '';
+                copyBtn.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch('/sanitize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await response.json();
+
+                resultOutput.value = data.cleanText;
+                copyBtn.classList.remove('hidden');
+            } catch (err) {
+                console.error('Ошибка связи с сервером:', err);
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(resultOutput.value);
+            const originalText = copyBtn.innerText;
+
+            copyBtn.innerText = 'СКОПИРОВАНО!';
+            copyBtn.classList.replace('bg-emerald-600', 'bg-cyan-600');
+            copyBtn.classList.replace('hover:bg-emerald-500', 'hover:bg-cyan-500');
+
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.classList.replace('bg-cyan-600', 'bg-emerald-600');
+                copyBtn.classList.replace('hover:bg-cyan-500', 'hover:bg-emerald-500');
+            }, 1500);
+        });
+    </script>
+</body>
+
+</html>
