@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "AI Text Sanitizer",
+    "version": "1.0",
+    "description": "Чистит текст от ИИ: елочки, тире и кавычки",
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "clipboardWrite"
+    ]
+}
